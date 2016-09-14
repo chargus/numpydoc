@@ -35,7 +35,7 @@ class SphinxDocString(NumpyDocString):
     def _str_indent(self, doc, indent=4):
         out = []
         for line in doc:
-            out += [' '*indent + line]
+            out += [' ' * indent + line]
         return out
 
     def _str_signature(self):
@@ -155,6 +155,17 @@ class SphinxDocString(NumpyDocString):
             out += ['']
         return out
 
+    def _custom_str_section(self, name):
+        out = []
+        if self._custom_parsed_data[name]:
+            out += self._str_header(name)
+            out += ['']
+            content = textwrap.dedent(
+                "\n".join(self._custom_parsed_data[name])).split("\n")
+            out += content
+            out += ['']
+        return out
+
     def _str_see_also(self, func_role):
         out = []
         if self['See Also']:
@@ -233,6 +244,8 @@ class SphinxDocString(NumpyDocString):
         out += self._str_returns('Yields')
         for param_list in ('Other Parameters', 'Raises', 'Warns'):
             out += self._str_param_list(param_list)
+        for custom_section in self._custom_parsed_data.keys():
+            out += self._custom_str_section(custom_section)
         out += self._str_warnings()
         out += self._str_see_also(func_role)
         out += self._str_section('Notes')

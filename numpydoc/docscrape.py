@@ -121,6 +121,7 @@ class NumpyDocString(collections.Mapping):
             'Examples': '',
             'index': {}
             }
+        self._custom_parsed_data = {}
 
         try:
             self._parse()
@@ -133,7 +134,8 @@ class NumpyDocString(collections.Mapping):
 
     def __setitem__(self, key, val):
         if key not in self._parsed_data:
-            warn("Unknown section %s" % key)
+            warn("Unknown section %s. Adding as a custom Section." % key)
+            self._custom_parsed_data[key] = val
         else:
             self._parsed_data[key] = val
 
@@ -432,6 +434,8 @@ class NumpyDocString(collections.Mapping):
         for param_list in ('Parameters', 'Returns', 'Yields',
                            'Other Parameters', 'Raises', 'Warns'):
             out += self._str_param_list(param_list)
+        for custom_section in self._custom_parsed_data.keys():
+            out += self._str_section(custom_section)
         out += self._str_section('Warnings')
         out += self._str_see_also(func_role)
         for s in ('Notes', 'References', 'Examples'):
